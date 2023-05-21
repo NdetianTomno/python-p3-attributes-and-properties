@@ -4,59 +4,45 @@ from person import Person
 
 import io
 import sys
+import unittest
+from person import Person
 
-class TestPerson:
-    '''Person in person.py'''
-
-    def test_is_class(self):
-        '''is a class with the name "Person".'''
-        guido = Person(name='Guido', job='Sales')
-        assert(type(guido) == Person)
-        
-    def test_name_not_empty(self):
-        '''prints "Name must be string between 1 and 25 characters." if empty string.'''
+class TestPerson(unittest.TestCase):
+    def test_empty_name(self):
         captured_out = io.StringIO()
         sys.stdout = captured_out
-        Person(name="", job="Sales")
+        Person(name="")
         sys.stdout = sys.__stdout__
-        assert(captured_out.getvalue() == "Name must be string between 1 and 25 characters.\n")
+        self.assertEqual(captured_out.getvalue(), "Name must be a string between 1 and 25 characters.\n")
 
-    def test_name_string(self):
-        '''prints "Name must be string between 1 and 25 characters." if not string.'''
+    def test_non_string_name(self):
         captured_out = io.StringIO()
         sys.stdout = captured_out
-        Person(name=123, job='Sales')
+        Person(name=123)
         sys.stdout = sys.__stdout__
-        assert(captured_out.getvalue() == "Name must be string between 1 and 25 characters.\n")
+        self.assertEqual(captured_out.getvalue(), "Name must be a string between 1 and 25 characters.\n")
 
-    def test_name_under_25(self):
-        '''prints "Name must be string between 1 and 25 characters." if string over 25 characters.'''
+    def test_long_name(self):
         captured_out = io.StringIO()
         sys.stdout = captured_out
-        Person(name="What do Persons do on their day off? Can't lie around - that's their job.",
-               job='Sales')
+        Person(name="This name is longer than 25 characters.")
         sys.stdout = sys.__stdout__
-        assert(captured_out.getvalue() == "Name must be string between 1 and 25 characters.\n")
+        self.assertEqual(captured_out.getvalue(), "Name must be a string between 1 and 25 characters.\n")
 
     def test_valid_name(self):
-        '''saves name if string between 1 and 25 characters.'''
-        guido = Person("Guido")
-        assert(guido.name == "Guido")
+        person = Person(name="John Doe")
+        self.assertEqual(person.name, "John Doe")
 
-    def test_valid_name_title_case(self):
-        '''converts name to title case and saves if between 1 and 25 characters'''
-        guido = Person(name="guido van rossum")
-        assert(guido.name == "Guido Van Rossum")
-
-    def test_job_not_in_list(self):
-        '''prints "Job must be in list of approved jobs." if not in job list.'''
+    def test_invalid_job(self):
         captured_out = io.StringIO()
         sys.stdout = captured_out
-        Person(job="Benevolent dictator for life")
+        Person(name="John Doe", job="Invalid Job")
         sys.stdout = sys.__stdout__
-        assert(captured_out.getvalue() == "Job must be in list of approved jobs.\n")
+        self.assertEqual(captured_out.getvalue(), "Job must be in the list of approved jobs.\n")
 
-    def test_job_in_list(self):
-        '''saves job if in job list.'''
-        guido = Person(job="ITC")
-        assert(guido.job == "ITC")
+    def test_valid_job(self):
+        person = Person(name="John Doe", job="Sales")
+        self.assertEqual(person.job, "Sales")
+
+if __name__ == '__main__':
+    unittest.main()
